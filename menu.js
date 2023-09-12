@@ -63,8 +63,9 @@ function onAuthorLinkHovered(runtimeScene) {
 }
 
 function isOnStartButtonClicked(runtimeScene) {
-    objects.forEach(object => {
-        if (object.IsClicked()) {
+    const startButtons = runtimeScene._instances.items.StartButton; 
+    startButtons.forEach(startButton => {
+        if (startButton.IsClicked()) {
             return true;
         }
     });
