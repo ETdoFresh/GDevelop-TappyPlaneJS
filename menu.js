@@ -39,10 +39,12 @@ function isOnAuthorLinkClicked(runtimeScene) {
     if (!isLeftReleased) return false;
 
     const authorLinks = runtimeScene._instances.items.AuthorLink;
+    let isClicked = false;
     authorLinks.forEach(authorLink => {
-        if (authorLink.cursorOnObject(runtimeScene)) return true;
+        if (isClicked) return;
+        isClicked = authorLink.cursorOnObject(runtimeScene);
     });
-    return false;
+    return isClicked;
 }
 
 function onAuthorLinkClicked(runtimeScene) {
@@ -65,12 +67,12 @@ function onAuthorLinkHovered(runtimeScene) {
 
 function isOnStartButtonClicked(runtimeScene) {
     const startButtons = runtimeScene._instances.items.Start; 
+    let isClicked = false;
     startButtons.forEach(startButton => {
-        if (startButton.IsClicked()) {
-            return true;
-        }
+        if (isClicked) return;
+        isClicked = startButton.IsClicked(runtimeScene);
     });
-    return false;
+    return isClicked;
 }
 
 function onStartButtonClicked(runtimeScene) {
