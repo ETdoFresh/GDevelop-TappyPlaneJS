@@ -1,17 +1,16 @@
 export function processEvents(runtimeScene, isFirstRun) {
-    if (isOnSceneLoad(runtimeScene) || isFirstRun) onSceneLoad(runtimeScene);
-    if (isOnUpdate(runtimeScene)) onUpdate(runtimeScene);
-    if (isOnAuthorLinkClicked(runtimeScene)) onAuthorLinkClicked(runtimeScene);
-    if (isOnAuthorLinkHovered(runtimeScene)) onAuthorLinkHovered(runtimeScene);
-    if (isOnStartButtonClicked(runtimeScene)) onStartButtonClicked(runtimeScene);
-    if (isOnBlackRectangleTweenFinished(runtimeScene)) onBlackRectangleTweenFinished(runtimeScene);
+    onSceneLoad(runtimeScene, isFirstRun);
+    onUpdateGround(runtimeScene);
+    onAuthorLinkClicked(runtimeScene);
+    onAuthorLinkHovered(runtimeScene);
+    onStartButtonClicked(runtimeScene);
+    onBlackRectangleTweenFinished(runtimeScene);
 }
 
-function isOnSceneLoad(runtimeScene) {
-    return gdjs.evtTools.runtimeScene.sceneJustBegins(runtimeScene);
-}
+function onSceneLoad(runtimeScene, isFirstRun) {
+    const isSceneLoadedEvent = gdjs.evtTools.runtimeScene.sceneJustBegins(runtimeScene) || isFirstRun;
+    if (!isSceneLoadedEvent) return;
 
-function onSceneLoad(runtimeScene) {
     // DEBUG: Access runtimeScene from browser console
     window.runtimeScene = runtimeScene;
 
@@ -23,36 +22,26 @@ function onSceneLoad(runtimeScene) {
     gdjs.evtTools.camera.showLayer(runtimeScene, "Transition");
 }
 
-function isOnUpdate(runtimeScene) {
-    return true;
-}
-
-function onUpdate(runtimeScene) {
+function onUpdateGround(runtimeScene) {
     // ACTION: Move Ground
     const grounds = runtimeScene._instances.items.Ground;
     const delta = gdjs.evtTools.runtimeScene.getElapsedTimeInSeconds(runtimeScene);
     grounds.forEach(ground => { ground.setXOffset(ground.getXOffset() + 100 * delta) });
 }
 
-function isOnAuthorLinkClicked(runtimeScene) {
+function onAuthorLinkClicked(runtimeScene) {
     const isLeftReleased = gdjs.evtTools.input.isMouseButtonReleased(runtimeScene, "Left");
-    if (!isLeftReleased) return false;
+    if (!isLeftReleased) return;
 
     const authorLinks = runtimeScene._instances.items.AuthorLink;
     let isClicked = false;
-    authorLinks.forEach(authorLink => {
+    authorLinks.every(authorLink => {
         if (isClicked) return;
         isClicked = authorLink.cursorOnObject(runtimeScene);
     });
-    return isClicked;
-}
+    if (!isClicked) return;
 
-function onAuthorLinkClicked(runtimeScene) {
     window.open("https://github.com/ETdoFresh?tab=repositories", "_blank");
-}
-
-function isOnAuthorLinkHovered(runtimeScene) {
-    return true;
 }
 
 function onAuthorLinkHovered(runtimeScene) {
@@ -65,17 +54,16 @@ function onAuthorLinkHovered(runtimeScene) {
     });
 }
 
-function isOnStartButtonClicked(runtimeScene) {
-    const startButtons = runtimeScene._instances.items.Start;
+function onStartButtonClicked(runtimeScene) {
+
     let isClicked = false;
+    const startButtons = runtimeScene._instances.items.Start;
     startButtons.forEach(startButton => {
         if (isClicked) return;
         isClicked = startButton.IsClicked(runtimeScene);
     });
-    return isClicked;
-}
+    if (!isClicked) return;
 
-function onStartButtonClicked(runtimeScene) {
     const sound = "assets\\sfx_swooshing.wav";
     const channel = 1;
     const loop = false;
@@ -95,7 +83,7 @@ function onStartButtonClicked(runtimeScene) {
     });
 }
 
-function isOnBlackRectangleTweenFinished(runtimeScene) {
+function onBlackRectangleTweenFinished(runtimeScene) {
     let isTweenFinished = false;
     const blackRectangles = runtimeScene._instances.items.BlackRectangle;
     blackRectangles.forEach(blackRectangle => {
@@ -103,25 +91,7 @@ function isOnBlackRectangleTweenFinished(runtimeScene) {
         if (blackRectangle.getBehavior("Tween").hasFinished("FadeOut"))
             isTweenFinished = true;
     });
-    return isTweenFinished;
-}
+    if (!isTweenFinished) return;
 
-function onBlackRectangleTweenFinished(runtimeScene) {
     gdjs.evtTools.runtimeScene.replaceScene(runtimeScene, "Game");
-}
-
-function gdevelopImport(runtimeScene) {
-    const useCache = false;
-    if ((!this.code && !this.importing) || !us) {
-        const mainUrl = "http://localhost:5500/menu.js";
-        const fallbackUrl = "https://github.etdofresh.com/GDevelop-TappyPlaneJS/menu.js";
-        this.importing = true;
-        import(mainUrl).catch(() => import(fallbackUrl)).then((module) => {
-            this.code = module.processEvents;
-            this.importing = false;
-            this.code(runtimeScene);
-        });
-    } else if (this.code) {
-        this.code(runtimeScene);
-    }
 }
