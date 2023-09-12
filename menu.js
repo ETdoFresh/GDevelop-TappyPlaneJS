@@ -1,5 +1,5 @@
-export function processEvents(runtimeScene) {
-    if (isOnSceneLoad(runtimeScene)) onSceneLoad(runtimeScene);
+export function processEvents(runtimeScene, isFirstRun) {
+    if (isOnSceneLoad(runtimeScene) || isFirstRun) onSceneLoad(runtimeScene);
     if (isOnUpdate(runtimeScene)) onUpdate(runtimeScene);
     if (isOnAuthorLinkClicked(runtimeScene)) onAuthorLinkClicked(runtimeScene);
     if (isOnAuthorLinkHovered(runtimeScene)) onAuthorLinkHovered(runtimeScene);
@@ -66,7 +66,7 @@ function onAuthorLinkHovered(runtimeScene) {
 }
 
 function isOnStartButtonClicked(runtimeScene) {
-    const startButtons = runtimeScene._instances.items.Start; 
+    const startButtons = runtimeScene._instances.items.Start;
     let isClicked = false;
     startButtons.forEach(startButton => {
         if (isClicked) return;
@@ -82,7 +82,7 @@ function onStartButtonClicked(runtimeScene) {
     const volume = 80;
     const pitch = 1;
     gdjs.evtTools.sound.playSoundOnChannel(runtimeScene, sound, channel, loop, volume, pitch);
-    
+
     const blackRectangles = runtimeScene._instances.items.BlackRectangle;
     blackRectangles.forEach(blackRectangle => {
         const identifier = "FadeOut";
@@ -96,13 +96,32 @@ function onStartButtonClicked(runtimeScene) {
 }
 
 function isOnBlackRectangleTweenFinished(runtimeScene) {
+    let isTweenFinished = false;
     const blackRectangles = runtimeScene._instances.items.BlackRectangle;
     blackRectangles.forEach(blackRectangle => {
-        if (blackRectangle.getBehavior("Tween").hasFinished("FadeOut")) return true;
+        if (isTweenFinished) return;
+        if (blackRectangle.getBehavior("Tween").hasFinished("FadeOut"))
+            isTweenFinished = true;
     });
-    return false;
+    return isTweenFinished;
 }
 
 function onBlackRectangleTweenFinished(runtimeScene) {
     gdjs.evtTools.runtimeScene.replaceScene(runtimeScene, "Game");
+}
+
+function gdevelopImport(runtimeScene) {
+    const useCache = false;
+    if ((!this.code && !this.importing) || !us) {
+        const mainUrl = "http://localhost:5500/menu.js";
+        const fallbackUrl = "https://github.etdofresh.com/GDevelop-TappyPlaneJS/menu.js";
+        this.importing = true;
+        import(mainUrl).catch(() => import(fallbackUrl)).then((module) => {
+            this.code = module.processEvents;
+            this.importing = false;
+            this.code(runtimeScene);
+        });
+    } else if (this.code) {
+        this.code(runtimeScene);
+    }
 }
