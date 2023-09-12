@@ -38,8 +38,9 @@ function isOnAuthorLinkClicked(runtimeScene) {
     const isLeftReleased = gdjs.evtTools.input.isMouseButtonReleased(runtimeScene, "Left");
     if (!isLeftReleased) return false;
 
-    objects.forEach(object => {
-        if (object.cursorOnObject(runtimeScene)) return true;
+    const authorLinks = runtimeScene._instances.items.AuthorLink;
+    authorLinks.forEach(authorLink => {
+        if (authorLink.cursorOnObject(runtimeScene)) return true;
     });
     return false;
 }
@@ -93,8 +94,9 @@ function onStartButtonClicked(runtimeScene) {
 }
 
 function isOnBlackRectangleTweenFinished(runtimeScene) {
-    objects.forEach(object => {
-        if (object.getBehavior("Tween").hasFinished("FadeOut")) return true;
+    const blackRectangles = runtimeScene._instances.items.BlackRectangle;
+    blackRectangles.forEach(blackRectangle => {
+        if (blackRectangle.getBehavior("Tween").hasFinished("FadeOut")) return true;
     });
     return false;
 }
