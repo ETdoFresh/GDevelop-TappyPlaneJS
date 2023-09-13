@@ -8,6 +8,8 @@ export function processEvents(runtimeScene, isFirstRun) {
     onRefreshClick(runtimeScene);
 }
 
+const leaderboardId = "ef511a78-fe0a-4e09-ab21-1259d0801a32";
+
 function onSceneLoad(runtimeScene, isFirstRun) {
     const isSceneLoadedEvent = gdjs.evtTools.runtimeScene.sceneJustBegins(runtimeScene) || isFirstRun;
     if (!isSceneLoadedEvent) return;
@@ -21,10 +23,11 @@ function onSceneLoad(runtimeScene, isFirstRun) {
     runtimeScene._instances.items.HighScoreChanged.forEach(hsc => hsc.hide());
 
     gdjs.evtTools.camera.showLayer(runtimeScene, "Transition");
-    gdjs.evtTools.camera.hideLayer(runtimeScene, "GameOver");
+    gdjs.evtTools.camera.hideLayer(runtimeScene, "Gameover");
 
-    // Create objects from external layout "GameOver"
-    // Create objects from external layour "SubmitScore"
+    gdjs.evtTools.runtimeScene.createObjectsFromExternalLayout(runtimeScene, "Gameover", 0, 0);
+
+    gdjs.evtTools.runtimeScene.createObjectsFromExternalLayout(runtimeScene, "SubmitScore", 0, 0);
 
     runtimeScene._instances.items.CurrentScore.forEach(currentScore => { currentScore.setOutline("0;0;0", 2); });
 
@@ -184,10 +187,12 @@ function onGamePlaying(runtimeScene) {
         const stateVariable = runtimeScene.getVariables().get("State");
         stateVariable.setValue("GameOver");
         gdjs.evtTools.sound.playSound(runtimeScene, "assets\\sfx_hit.wav", false, 100, 0.8);
+        tappyPlanes.forEach(tappyPlane => { tappyPlane.getBehavior("PlatformerObject").activate(false); })
     }
 }
 
 let isGameOverTriggered = false;
+let isPlayerLoggedIn = false;
 function onGameOver(runtimeScene) {
     const stateVariable = runtimeScene.getVariables().get("State");
     const wasGameOverTriggered = isGameOverTriggered;
@@ -199,6 +204,7 @@ function onGameOver(runtimeScene) {
     const highScoreChangeds = runtimeScene.getObjects("HighScoreChanged");
     const finalScores = runtimeScene.getObjects("FinalScore");
     const highScores = runtimeScene.getObjects("HighScore");
+    const playerNameInputs = runtimeScene.getObjects("PlayerNameInput");
 
     if (isTriggeredOnce) {
         var flash = runtimeScene.createObject("Flash");
@@ -208,7 +214,7 @@ function onGameOver(runtimeScene) {
             setTimeout(() => { resolve() }, 100);
         }).then(() => {
             flash.deleteFromScene(runtimeScene);
-            gdjs.evtTools.camera.showLayer(runtimeScene, "GameOver");
+            gdjs.evtTools.camera.showLayer(runtimeScene, "Gameover");
             currentScores.forEach(currentScore => { currentScore.hide(); });
             highScoreChangeds.forEach(highScoreChanged => highScoreChanged.hide());
             finalScores.forEach(finalScore => { 
@@ -220,6 +226,81 @@ function onGameOver(runtimeScene) {
             });
         });
 
+        // Read the previous best score from the storage
+        const highScoreExistsInSave = gdjs.evtTools.storage.elementExistsInJSONFile("save", "high_score");
+        const previousBestScore = runtimeScene.getVariables().get("PreviousBestScore");
+        if (highScoreExistsInSave) {
+            gdjs.evtTools.storage.readNumberFromJSONFile("save", "high_score", runtimeScene, previousBestScore);
+            highScores.forEach(highScore => { highScore.setString(`Best: ${previousBestScore.getAsString()}`); });
+        }
+
+        // Check if this is a new best score
+        const score = runtimeScene.getVariables().get("Score");
+        const isScoreHigherThanPreviousBestScore = score.getValue() > previousBestScore.getValue();
+        if (isScoreHigherThanPreviousBestScore) {
+            highScoreChangeds.forEach(highScoreChanged => highScoreChanged.show());
+            gdjs.evtTools.storage.writeNumberInJSONFile("save", "high_score", runtimeScene.getVariables().get("Score").getValue());
+        }
+
+        gdjs.playerAuthentication.displayAuthenticationBanner(runtimeScene);
+
+        const isPlayerAuthenticated = gdjs.playerAuthentication.isAuthenticated();
+        if (isPlayerAuthenticated) {
+            playerNameInputs.forEach(playerNameInput => { 
+                playerNameInput.setString(gdjs.playerAuthentication.getUsername()); 
+                playerNameInput.setDisabled(true);
+            });
+        }
+        else if (runtimeScene.getGame().getVariables().get("PlayerName").getAsString()) {
+            playerNameInputs.forEach(playerNameInput => { 
+                playerNameInput.setString(runtimeScene.getGame().getVariables().get("PlayerName").getAsString()); 
+            });
+        }
+    }
+
+    const wasPlayerLoggedIn = isPlayerLoggedIn;
+    isPlayerLoggedIn = gdjs.playerAuthentication.isAuthenticated();
+    if (!wasPlayerLoggedIn && isPlayerLoggedIn) {
+        playerNameInputs.forEach(playerNameInput => { 
+            playerNameInput.setString(gdjs.playerAuthentication.getUsername()); 
+            playerNameInput.setDisabled(true);
+        });
+        gdjs.playerAuthentication.displayAuthenticationBanner(runtimeScene);
+    }
+
+    const restartButtons = runtimeScene.getObjects("RestartButton");
+    let isRestartClicked = false;
+    restartButtons.forEach(restartButton => {
+        if (isRestartClicked) return;
+        isRestartClicked = restartButton.IsClicked(runtimeScene);
+    });
+    if (isRestartClicked) {
+        gdjs.evtTools.playerAuthentication.removeAuthenticationBanner(runtimeScene);
+        gdjs.evtTools.runtimeScene.replaceScene(runtimeScene, "Game");
+    }
+
+    const submitButtons = runtimeScene.getObjects("SubmitScoreButton");
+    let isSubmitClicked = false;
+    submitButtons.forEach(submitButton => {
+        if (isSubmitClicked) return;
+        isSubmitClicked = submitButton.IsClicked(runtimeScene);
+    });
+    if (isSubmitClicked) {
+        gdjs.evtTools.playerAuthentication.removeAuthenticationBanner(runtimeScene);
+        if (isPlayerLoggedIn) {
+            gdjs.evtTools.leaderboards.savePlayerScore(runtimeScene, leaderboardId, runtimeScene.getVariables().get("Score").getValue(), gdjs.playerAuthentication.getUsername());
+        }
+        else {
+            gdjs.evtTools.leaderboards.savePlayerScore(runtimeScene, leaderboardId, runtimeScene.getVariables().get("Score").getValue(), runtimeScene.getObjects("PlayerNameInput")[0].getString());
+            runtimeScene.getGame().getVariables().get("PlayerName").setString(runtimeScene.getObjects("PlayerNameInput")[0].getString());
+        }
+        gdjs.evtTools.leaderboards.displayLeaderboard(runtimeScene, leaderboardId);
+    }
+
+    const hasClosedLeaderboard = gdjs.evtTools.leaderboards.hasPlayerJustClosedLeaderboardView();
+    const hasScoreSavedSucceeeded = gdjs.evtTools.leaderboards.hasBeenSaved(leaderboardId);
+    if (hasClosedLeaderboard && hasScoreSavedSucceeeded) {
+        gdjs.evtTools.runtimeScene.replaceScene(runtimeScene, "Game");
     }
 }
 
