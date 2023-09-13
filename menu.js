@@ -35,13 +35,15 @@ function onAuthorLinkClicked(runtimeScene) {
 
     const authorLinks = runtimeScene._instances.items.AuthorLink;
     let isClicked = false;
-    authorLinks.every(authorLink => {
+    let url = "";
+    authorLinks.forEach(authorLink => {
         if (isClicked) return;
         isClicked = authorLink.cursorOnObject(runtimeScene);
+        url = authorLink.getString();
     });
     if (!isClicked) return;
 
-    window.open("https://github.com/ETdoFresh?tab=repositories", "_blank");
+    window.open(url, "_blank");
 }
 
 function onAuthorLinkHovered(runtimeScene) {
