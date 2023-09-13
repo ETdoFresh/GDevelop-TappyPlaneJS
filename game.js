@@ -248,7 +248,7 @@ function onGameOver(runtimeScene) {
                 playerNameInput.setDisabled(true);
             });
         }
-        else if (runtimeScene.getGame().getVariables().get("PlayerName").getAsString()) {
+        else if (runtimeScene.getGame().getVariables().get("PlayerName").getAsString() != 0) {
             playerNameInputs.forEach(playerNameInput => { 
                 playerNameInput.setString(runtimeScene.getGame().getVariables().get("PlayerName").getAsString()); 
             });
