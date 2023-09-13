@@ -4,8 +4,6 @@ export function processEvents(runtimeScene, isFirstRun) {
     onMoving(runtimeScene);
     onGamePlaying(runtimeScene);
     onGameOver(runtimeScene);
-
-    onRefreshClick(runtimeScene);
 }
 
 const leaderboardId = "ef511a78-fe0a-4e09-ab21-1259d0801a32";
@@ -291,7 +289,6 @@ function onGameOver(runtimeScene) {
             gdjs.evtTools.leaderboards.saveConnectedPlayerScore(runtimeScene, leaderboardId, score.getValue());
         }
         else {
-            console.log(`Saving score for player ${runtimeScene.getObjects("PlayerNameInput")[0].getString()}`);
             runtimeScene.getGame().getVariables().get("PlayerName").setString(runtimeScene.getObjects("PlayerNameInput")[0].getString());
             gdjs.evtTools.leaderboards.savePlayerScore(runtimeScene, leaderboardId, score.getValue(), runtimeScene.getObjects("PlayerNameInput")[0].getString());
         }
@@ -299,23 +296,9 @@ function onGameOver(runtimeScene) {
         return;
     }
 
-    console.log(gdjs.evtTools.leaderboards.getLastSaveError());
-
     const hasClosedLeaderboard = gdjs.evtTools.leaderboards.hasPlayerJustClosedLeaderboardView();
     const hasScoreSavedSucceeeded = gdjs.evtTools.leaderboards.hasBeenSaved(leaderboardId);
-    console.log(hasClosedLeaderboard, hasScoreSavedSucceeeded);
-    //if (hasClosedLeaderboard && hasScoreSavedSucceeeded) {
-    if (hasClosedLeaderboard) {
+    if (hasClosedLeaderboard && hasScoreSavedSucceeeded) {
         gdjs.evtTools.runtimeScene.replaceScene(runtimeScene, "Game");
     }
-}
-
-function onRefreshClick(runtimeScene) {
-    let isClicked = false;
-    runtimeScene._instances.items.Refresh.forEach(refresh => {
-        if (isClicked) return;
-        isClicked = refresh.IsClicked(runtimeScene);
-    });
-    if (!isClicked) return;
-    location.reload();
 }
