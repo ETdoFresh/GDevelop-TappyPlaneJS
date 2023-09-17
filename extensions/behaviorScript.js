@@ -4,9 +4,9 @@ export class behaviorScript {
     static behaviorScripts = [];
 
     constructor(object, behavior) {
-        this.$o = object;
-        this.$b = behavior;
-        this.$bd = behavior._behaviorData;
+        this.object = object;
+        this.behavior = behavior;
+        this.behaviorData = behavior._behaviorData;
     }
 
     static onCreated(runtimeScene, eventsFunctionContext) {

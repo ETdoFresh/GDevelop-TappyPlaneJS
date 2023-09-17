@@ -3,21 +3,21 @@ import { behaviorScript } from "./behaviorScript.js";
 export class ellipseMovement extends behaviorScript {
 
     onCreated() {
-        this.$bd.OldX = this.$o.getX();
-        this.$bd.OldY = this.$o.getY();
+        this.behaviorData.OldX = this.object.getX();
+        this.behaviorData.OldY = this.object.getY();
 
         // Evaluate the center of movement from the object position and properties.
-        if (this.$bd.InitialTurningLeft === true)
-            this.$bd.LoopDuration = this.$bd.LoopDuration * -1;
+        if (this.behaviorData.InitialTurningLeft === true)
+            this.behaviorData.LoopDuration = this.behaviorData.LoopDuration * -1;
 
-        if (this.$bd.LoopDuration < 0)
-            this.$bd.MovementAngle = this.$bd.InitialDirectionAngle + 90;
+        if (this.behaviorData.LoopDuration < 0)
+            this.behaviorData.MovementAngle = this.behaviorData.InitialDirectionAngle + 90;
 
-        if (this.$bd.LoopDuration > 0)
-            this.$bd.MovementAngle = this.$bd.InitialDirectionAngle - 90;
+        if (this.behaviorData.LoopDuration > 0)
+            this.behaviorData.MovementAngle = this.behaviorData.InitialDirectionAngle - 90;
 
-        this.$bd.CenterX = this.$o.getX() - this.deltaX();
-        this.$bd.CenterY = this.$o.getY() - this.deltaY();
+        this.behaviorData.CenterX = this.object.getX() - this.deltaX();
+        this.behaviorData.CenterY = this.object.getY() - this.deltaY();
     }
 
     onDestroy() { 
@@ -31,37 +31,37 @@ export class ellipseMovement extends behaviorScript {
 
     doStepPreEvents(delta) {
         // Update the center when the object is moved outside of the behavior.
-        this.$bd.CenterX = this.$bd.CenterX + (this.$o.getX() - this.$bd.OldX);
-        this.$bd.CenterY = this.$bd.CenterY + (this.$o.getY() - this.$bd.OldY);
+        this.behaviorData.CenterX = this.behaviorData.CenterX + (this.object.getX() - this.behaviorData.OldX);
+        this.behaviorData.CenterY = this.behaviorData.CenterY + (this.object.getY() - this.behaviorData.OldY);
 
         // Place the object according to the movement angle.
-        if (this.$bd.RadiusX !== 0)
-            this.$o.setX(this.$bd.CenterX + this.deltaX());
+        if (this.behaviorData.RadiusX !== 0)
+            this.object.setX(this.behaviorData.CenterX + this.deltaX());
 
-        if (this.$bd.RadiusY !== 0) {
-            this.$o.setY(this.$bd.CenterY + this.deltaY());
+        if (this.behaviorData.RadiusY !== 0) {
+            this.object.setY(this.behaviorData.CenterY + this.deltaY());
         }
 
-        if (this.$bd.ShouldRotate === true)
-            this.$o.setAngle(directionAngle());
+        if (this.behaviorData.ShouldRotate === true)
+            this.object.setAngle(directionAngle());
 
         // Save the position to detect when the object is moved outside of the behavior.
-        this.$bd.OldX = this.$o.getX();
-        this.$bd.OldY = this.$o.getY();
+        this.behaviorData.OldX = this.object.getX();
+        this.behaviorData.OldY = this.object.getY();
     }
 
     doStepPostEvents(delta) {
         // Update the movement angle for the next frame.
-        this.$bd.MovementAngle = this.$bd.MovementAngle + 360 * delta / this.$bd.LoopDuration;
+        this.behaviorData.MovementAngle = this.behaviorData.MovementAngle + 360 * delta / this.behaviorData.LoopDuration;
     }
 
     toggleTurningLeft() {
-        this.$bd.CenterX = 2 * this.$o.getX() - CenterX();
-        this.$bd.CenterY = 2 * this.$o.getY() - CenterY();
+        this.behaviorData.CenterX = 2 * this.object.getX() - CenterX();
+        this.behaviorData.CenterY = 2 * this.object.getY() - CenterY();
 
-        this.$bd.MovementAngle = this.$bd.MovementAngle + 180;
+        this.behaviorData.MovementAngle = this.behaviorData.MovementAngle + 180;
 
-        this.$bd.LoopDuration = this.$bd.LoopDuration * -1;
+        this.behaviorData.LoopDuration = this.behaviorData.LoopDuration * -1;
     }
 
     setTurningLeft() {
@@ -73,64 +73,64 @@ export class ellipseMovement extends behaviorScript {
     }
 
     isTurningLeft() {
-        return this.$bd.LoopDuration < 0;
+        return this.behaviorData.LoopDuration < 0;
     }
 
     movementAngle() {
-        return this.$bd.MovementAngle;
+        return this.behaviorData.MovementAngle;
     }
 
     loopDuration() {
-        return this.$bd.LoopDuration;;
+        return this.behaviorData.LoopDuration;;
     }
 
     radiusX() {
-        return this.$bd.RadiusX;
+        return this.behaviorData.RadiusX;
     }
 
     radiusY() {
-        return this.$bd.RadiusY;
+        return this.behaviorData.RadiusY;
     }
 
     CenterX() {
-        return this.$bd.CenterX;
+        return this.behaviorData.CenterX;
     }
 
     CenterY() {
-        return this.$bd.CenterY;
+        return this.behaviorData.CenterY;
     }
 
     setRadiusX() {
-        this.$bd.RadiusX = eventsFunctionContext.getArgument("Value");
+        this.behaviorData.RadiusX = eventsFunctionContext.getArgument("Value");
     }
 
     setRadiusY() {
-        this.$bd.RadiusY = eventsFunctionContext.getArgument("Value");
+        this.behaviorData.RadiusY = eventsFunctionContext.getArgument("Value");
     }
 
     setLoopDuration() {
-        this.$bd.LoopDuration = eventsFunctionContext.getArgument("Value");
+        this.behaviorData.LoopDuration = eventsFunctionContext.getArgument("Value");
     }
 
     setMovementAngle() {
-        this.$bd.MovementAngle = eventsFunctionContext.getArgument("Value");
+        this.behaviorData.MovementAngle = eventsFunctionContext.getArgument("Value");
     }
 
     deltaX() {
-        const angle = this.$bd.MovementAngle;
-        const radiusX = this.$bd.RadiusX;
+        const angle = this.behaviorData.MovementAngle;
+        const radiusX = this.behaviorData.RadiusX;
         return Math.cos(angle * Math.PI / 180) * radiusX;
     }
 
     deltaY() {
-        const angle = this.$bd.MovementAngle;
-        const radiusY = this.$bd.RadiusY;
+        const angle = this.behaviorData.MovementAngle;
+        const radiusY = this.behaviorData.RadiusY;
         return Math.sin(angle * Math.PI / 180) * radiusY;
     }
 
     directionAngle() {
-        const angle = this.$bd.MovementAngle;
-        const loopDuration = this.$bd.LoopDuration;
+        const angle = this.behaviorData.MovementAngle;
+        const loopDuration = this.behaviorData.LoopDuration;
         return angle + 90 * loopDuration / Math.abs(loopDuration);
     }
 }
