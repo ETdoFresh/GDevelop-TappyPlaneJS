@@ -1,220 +1,136 @@
-export function onCreated(runtimeScene, eventsFunctionContext) {
-    getObjectsAndBehaviors(eventsFunctionContext).forEach(({object, behavior}) => {
-        behavior._setOldX(object.getX());
-        behavior._setOldY(object.getY());
+import { behaviorScript } from "./behaviorScript.js";
+
+export class ellipseMovement extends behaviorScript {
+
+    onCreated() {
+        this.$bd.OldX = this.$o.getX();
+        this.$bd.OldY = this.$o.getY();
 
         // Evaluate the center of movement from the object position and properties.
-        if (behavior._getInitialTurningLeft() === true)
-            behavior._setLoopDuration(behavior._getLoopDuration() * -1);
+        if (this.$bd.InitialTurningLeft === true)
+            this.$bd.LoopDuration = this.$bd.LoopDuration * -1;
 
-        if (behavior._getLoopDuration() < 0)
-            behavior._setMovementAngle(behavior._getInitialDirectionAngle() + 90);
+        if (this.$bd.LoopDuration < 0)
+            this.$bd.MovementAngle = this.$bd.InitialDirectionAngle + 90;
 
-        if (behavior._getLoopDuration() > 0)
-            behavior._setMovementAngle(behavior._getInitialDirectionAngle() - 90);
+        if (this.$bd.LoopDuration > 0)
+            this.$bd.MovementAngle = this.$bd.InitialDirectionAngle - 90;
 
-        behavior._setCenterX(object.getX() - deltaX(...arguments));
-        behavior._setCenterY(object.getY() - deltaY(...arguments));
-    });
-}
+        this.$bd.CenterX = this.$o.getX() - this.deltaX();
+        this.$bd.CenterY = this.$o.getY() - this.deltaY();
+    }
 
-export function doStepPreEvents(runtimeScene, eventsFunctionContext) {
-    getObjectsAndBehaviors(eventsFunctionContext).forEach(({object, behavior}) => {
+    onDestroy() { 
+    }
 
+    onActivate() { 
+    }
+
+    onDeActivate() { 
+    }
+
+    doStepPreEvents(delta) {
         // Update the center when the object is moved outside of the behavior.
-        behavior._setCenterX(behavior._getCenterX() + (object.getX() - behavior._getOldX()));
-        behavior._setCenterY(behavior._getCenterY() + (object.getY() - behavior._getOldY()));
+        this.$bd.CenterX = this.$bd.CenterX + (this.$o.getX() - this.$bd.OldX);
+        this.$bd.CenterY = this.$bd.CenterY + (this.$o.getY() - this.$bd.OldY);
 
         // Place the object according to the movement angle.
-        if (behavior._getRadiusX() !== 0)
-            object.setX(behavior._getCenterX() + deltaX(...arguments));
+        if (this.$bd.RadiusX !== 0)
+            this.$o.setX(this.$bd.CenterX + this.deltaX());
 
-        if (behavior._getRadiusY() !== 0)
-            object.setY(behavior._getCenterY() + deltaY(...arguments));
+        if (this.$bd.RadiusY !== 0) {
+            this.$o.setY(this.$bd.CenterY + this.deltaY());
+        }
 
-        if (behavior._getShouldRotate() === true)
-            object.setAngle(directionAngle(...arguments));
+        if (this.$bd.ShouldRotate === true)
+            this.$o.setAngle(directionAngle());
 
         // Save the position to detect when the object is moved outside of the behavior.
-        behavior._setOldX(object.getX());
-        behavior._setOldY(object.getY());
-    });
-}
+        this.$bd.OldX = this.$o.getX();
+        this.$bd.OldY = this.$o.getY();
+    }
 
-export function doStepPostEvents(runtimeScene, eventsFunctionContext) {
-    const delta = gdjs.evtTools.runtimeScene.getElapsedTimeInSeconds(runtimeScene);
-    getObjectsAndBehaviors(eventsFunctionContext).forEach(({object, behavior}) => {
-        
+    doStepPostEvents(delta) {
         // Update the movement angle for the next frame.
-        behavior._setMovementAngle(behavior._getMovementAngle() + 360 * delta / behavior._getLoopDuration());
-    });
-}
+        this.$bd.MovementAngle = this.$bd.MovementAngle + 360 * delta / this.$bd.LoopDuration;
+    }
 
-export function toggleTurningLeft(runtimeScene, eventsFunctionContext) {
-    getObjectsAndBehaviors(eventsFunctionContext).forEach(({object, behavior}) => {
+    toggleTurningLeft() {
+        this.$bd.CenterX = 2 * this.$o.getX() - CenterX();
+        this.$bd.CenterY = 2 * this.$o.getY() - CenterY();
 
-        behavior._setCenterX(2 * object.getX() - CenterX(...arguments));
-        behavior._setCenterY(2 * object.getY() - CenterY(...arguments));
+        this.$bd.MovementAngle = this.$bd.MovementAngle + 180;
 
-        behavior._setMovementAngle(behavior._getMovementAngle() + 180);
+        this.$bd.LoopDuration = this.$bd.LoopDuration * -1;
+    }
 
-        behavior._setLoopDuration(behavior._getLoopDuration() * -1);
-    });
-}
+    setTurningLeft() {
+        const value = eventsFunctionContext.getArgument("Value");
+        if (this.isTurningLeft() === true && !value)
+            this.toggleTurningLeft();
+        else if (this.isTurningLeft() === false && value)
+            this.toggleTurningLeft();
+    }
 
-export function setTurningLeft(runtimeScene, eventsFunctionContext) {
-    const value = eventsFunctionContext.getArgument("Value");
-    getObjectsAndBehaviors(eventsFunctionContext).forEach(({object, behavior}) => {
-        if (isTurningLeft(...arguments) === true && !value)
-            toggleTurningLeft(...arguments);
-        else if (isTurningLeft(...arguments) === false && value)
-            toggleTurningLeft(...arguments);
-    });
-}
+    isTurningLeft() {
+        return this.$bd.LoopDuration < 0;
+    }
 
-export function isTurningLeft(runtimeScene, eventsFunctionContext) {
-    let value = null;
-    getObjectsAndBehaviors(eventsFunctionContext).forEach(({object, behavior}) => {
-        if (value !== null) return;
-        value = behavior._getLoopDuration() < 0;
-    });
-    return value;
-}
+    movementAngle() {
+        return this.$bd.MovementAngle;
+    }
 
-export function movementAngle(runtimeScene, eventsFunctionContext) {
-    let value = null;
-    getObjectsAndBehaviors(eventsFunctionContext).forEach(({object, behavior}) => {
-        if (value !== null) return;
-        value = behavior._getMovementAngle();
-    });
-    return value;
-}
+    loopDuration() {
+        return this.$bd.LoopDuration;;
+    }
 
-export function loopDuration(runtimeScene, eventsFunctionContext) {
-    let value = null;
-    getObjectsAndBehaviors(eventsFunctionContext).forEach(({object, behavior}) => {
-        if (value !== null) return;
-        value = behavior._getLoopDuration();
-    });
-    return value;
-}
+    radiusX() {
+        return this.$bd.RadiusX;
+    }
 
-export function radiusX(runtimeScene, eventsFunctionContext) {
-    let value = null;
-    getObjectsAndBehaviors(eventsFunctionContext).forEach(({object, behavior}) => {
-        if (value !== null) return;
-        value = behavior._getRadiusX();
-    });
-    return value;
-}
+    radiusY() {
+        return this.$bd.RadiusY;
+    }
 
-export function radiusY(runtimeScene, eventsFunctionContext) {
-    let value = null;
-    getObjectsAndBehaviors(eventsFunctionContext).forEach(({object, behavior}) => {
-        if (value !== null) return;
-        value = behavior._getRadiusY();
-    });
-    return value;
-}
+    CenterX() {
+        return this.$bd.CenterX;
+    }
 
-export function centerX(runtimeScene, eventsFunctionContext) {
-    let value = null;
-    getObjectsAndBehaviors(eventsFunctionContext).forEach(({object, behavior}) => {
-        if (value !== null) return;
-        value = behavior._getCenterX();
-    });
-    return value;
-}
+    CenterY() {
+        return this.$bd.CenterY;
+    }
 
-export function centerY(runtimeScene, eventsFunctionContext) {
-    let value = null;
-    getObjectsAndBehaviors(eventsFunctionContext).forEach(({object, behavior}) => {
-        if (value !== null) return;
-        value = behavior._getCenterY();
-    });
-    return value;
-}
+    setRadiusX() {
+        this.$bd.RadiusX = eventsFunctionContext.getArgument("Value");
+    }
 
-export function setRadiusX(runtimeScene, eventsFunctionContext) {
-    const value = eventsFunctionContext.getArgument("Value");
-    getObjectsAndBehaviors(eventsFunctionContext).forEach(({object, behavior}) => {
-        behavior._setRadiusX(value);
-    });
-}
+    setRadiusY() {
+        this.$bd.RadiusY = eventsFunctionContext.getArgument("Value");
+    }
 
-export function setRadiusY(runtimeScene, eventsFunctionContext) {
-    const value = eventsFunctionContext.getArgument("Value");
-    getObjectsAndBehaviors(eventsFunctionContext).forEach(({object, behavior}) => {
-        behavior._setRadiusY(value);
-    });
-}
+    setLoopDuration() {
+        this.$bd.LoopDuration = eventsFunctionContext.getArgument("Value");
+    }
 
-export function setLoopDuration(runtimeScene, eventsFunctionContext) {
-    const value = eventsFunctionContext.getArgument("Value");
-    getObjectsAndBehaviors(eventsFunctionContext).forEach(({object, behavior}) => {
-        if (isTurningLeft(...arguments) === true)
-            behavior._setLoopDuration(-1 * value);
-        else
-            behavior._setLoopDuration(value);
-    });
-}
+    setMovementAngle() {
+        this.$bd.MovementAngle = eventsFunctionContext.getArgument("Value");
+    }
 
-export function setMovementAngle(runtimeScene, eventsFunctionContext) {
-    const value = eventsFunctionContext.getArgument("Value");
-    getObjectsAndBehaviors(eventsFunctionContext).forEach(({object, behavior}) => {
-        behavior._setMovementAngle(value);
-    });
-}
+    deltaX() {
+        const angle = this.$bd.MovementAngle;
+        const radiusX = this.$bd.RadiusX;
+        return Math.cos(angle * Math.PI / 180) * radiusX;
+    }
 
-export function deltaX(runtimeScene, eventsFunctionContext) {
-    let value = null;
-    getObjectsAndBehaviors(eventsFunctionContext).forEach(({object, behavior}) => {
-        if (value !== null) return;
-        const angle = behavior._getMovementAngle();
-        const radiusX = behavior._getRadiusX();
-        value = Math.cos(angle * Math.PI / 180) * radiusX;
-    });
-    return value;
-}
+    deltaY() {
+        const angle = this.$bd.MovementAngle;
+        const radiusY = this.$bd.RadiusY;
+        return Math.sin(angle * Math.PI / 180) * radiusY;
+    }
 
-export function deltaY(runtimeScene, eventsFunctionContext) {
-    let value = null;
-    getObjectsAndBehaviors(eventsFunctionContext).forEach(({object, behavior}) => {
-        if (value !== null) return;
-        const angle = behavior._getMovementAngle();
-        const radiusY = behavior._getRadiusY();
-        value = Math.sin(angle * Math.PI / 180) * radiusY;
-    });
-    return value;
-}
-
-export function directionAngle(runtimeScene, eventsFunctionContext) {
-    let value = null;
-    getObjectsAndBehaviors(eventsFunctionContext).forEach(({object, behavior}) => {
-        if (value !== null) return;
-        const angle = behavior._getMovementAngle();
-        const loopDuration = behavior._getLoopDuration();
-
-        if (loopDuration < 0)
-            value = angle + 90;
-        else if (loopDuration >= 0)
-            value = angle - 90;
-    });
-    return value;
-}
-
-function getObjects(eventsFunctionContext) {
-    return eventsFunctionContext._objectArraysMap.Object;
-}
-
-function getBehaviorName(eventsFunctionContext) {
-    return eventsFunctionContext._behaviorNamesMap.Behavior;
-}
-
-function getBehavior(object, eventsFunctionContext) {
-    return object.getBehavior(getBehaviorName(eventsFunctionContext));
-}
-
-function getObjectsAndBehaviors(eventsFunctionContext) {
-    return getObjects(eventsFunctionContext).map(object => ({ object: object, behavior: getBehavior(object, eventsFunctionContext)}));
+    directionAngle() {
+        const angle = this.$bd.MovementAngle;
+        const loopDuration = this.$bd.LoopDuration;
+        return angle + 90 * loopDuration / Math.abs(loopDuration);
+    }
 }
