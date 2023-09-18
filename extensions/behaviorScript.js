@@ -12,9 +12,9 @@ export class behaviorScript {
     static onCreated(runtimeScene, eventsFunctionContext) {
         const objects = eventsFunctionContext._objectArraysMap.Object;
         objects.forEach(object => {
-            if (this.objects.includes(object)) return;
             const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
             const behavior = object.getBehavior(behaviorName);
+            if (this.objects.includes(object) && this.behaviors.includes(behavior)) return;
             const behaviorScript = new this(object, behavior);
             this.objects.push(object);
             this.behaviors.push(behavior);
@@ -29,7 +29,9 @@ export class behaviorScript {
     static onActivate(runtimeScene, eventsFunctionContext) {
         const objects = eventsFunctionContext._objectArraysMap.Object;
         objects.forEach(object => {
-            const index = this.objects.indexOf(object);
+            const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
+            const behavior = object.getBehavior(behaviorName);
+            const index = this.behaviors.indexOf(behavior);
             if (index === -1) return;
             const behaviorScript = this.behaviorScripts[index];
             behaviorScript.runtimeScene = runtimeScene;
@@ -42,7 +44,9 @@ export class behaviorScript {
     static onDeActivate(runtimeScene, eventsFunctionContext) {
         const objects = eventsFunctionContext._objectArraysMap.Object;
         objects.forEach(object => {
-            const index = this.objects.indexOf(object);
+            const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
+            const behavior = object.getBehavior(behaviorName);
+            const index = this.behaviors.indexOf(behavior);
             if (index === -1) return;
             const behaviorScript = this.behaviorScripts[index];
             behaviorScript.runtimeScene = runtimeScene;
@@ -56,7 +60,9 @@ export class behaviorScript {
         const delta = gdjs.evtTools.runtimeScene.getElapsedTimeInSeconds(runtimeScene);
         const objects = eventsFunctionContext._objectArraysMap.Object;
         objects.forEach(object => {
-            const index = this.objects.indexOf(object);
+            const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
+            const behavior = object.getBehavior(behaviorName);
+            const index = this.behaviors.indexOf(behavior);
             if (index === -1) return;
             const behaviorScript = this.behaviorScripts[index];
             behaviorScript.runtimeScene = runtimeScene;
@@ -70,7 +76,9 @@ export class behaviorScript {
         const delta = gdjs.evtTools.runtimeScene.getElapsedTimeInSeconds(runtimeScene);
         const objects = eventsFunctionContext._objectArraysMap.Object;
         objects.forEach(object => {
-            const index = this.objects.indexOf(object);
+            const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
+            const behavior = object.getBehavior(behaviorName);
+            const index = this.behaviors.indexOf(behavior);
             if (index === -1) return;
             const behaviorScript = this.behaviorScripts[index];
             behaviorScript.runtimeScene = runtimeScene;
@@ -83,7 +91,9 @@ export class behaviorScript {
     static onDestroy(runtimeScene, eventsFunctionContext) {
         const objects = eventsFunctionContext._objectArraysMap.Object;
         objects.forEach(object => {
-            const index = this.objects.indexOf(object);
+            const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
+            const behavior = object.getBehavior(behaviorName);
+            const index = this.behaviors.indexOf(behavior);
             if (index === -1) return;
             const behaviorScript = this.behaviorScripts[index];
             this.objects.splice(index, 1);
@@ -101,7 +111,9 @@ export class behaviorScript {
         const objects = eventsFunctionContext._objectArraysMap.Object;
         objects.forEach(object => {
             if (value !== null) return;
-            const index = this.objects.indexOf(object);
+            const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
+            const behavior = object.getBehavior(behaviorName);
+            const index = this.behaviors.indexOf(behavior);
             if (index === -1) return;
             const behaviorScript = this.behaviorScripts[index];
             behaviorScript.runtimeScene = runtimeScene;

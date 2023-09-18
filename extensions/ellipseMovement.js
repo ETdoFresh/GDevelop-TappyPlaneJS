@@ -1,5 +1,6 @@
 import { behaviorScript } from "./behaviorScript.js";
 
+
 export class ellipseMovement extends behaviorScript {
 
     onCreated() {
