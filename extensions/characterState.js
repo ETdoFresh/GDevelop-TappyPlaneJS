@@ -24,4 +24,12 @@ export class characterState extends behaviorScript {
     isNewCharacterDirection() {
         return this.hasDirectionBeenChanged;
     }
+
+    getState() {
+        return this.behaviorData.CurrentState;
+    }
+
+    getDirection() {
+        return this.behaviorData.CurrentDirection;
+    }
 }
