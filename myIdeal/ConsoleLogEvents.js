@@ -1,8 +1,8 @@
-import { GDevelopBehavior } from "./GDevelopBehavior";
+import { GDevelopBehavior } from "./GDevelopBehavior.js";
 
 export class ConsoleLogEvents extends GDevelopBehavior {
-    onCreate() {
-        console.log("[ConsoleLogEvents] onCreate()");
+    onCreated() {
+        console.log("[ConsoleLogEvents] onCreated()");
     }
 
     onDestroy() {

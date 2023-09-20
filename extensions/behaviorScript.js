@@ -11,8 +11,8 @@ export class behaviorScript {
 
     static onCreated(runtimeScene, eventsFunctionContext) {
         const objects = eventsFunctionContext._objectArraysMap.Object;
+        const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
         objects.forEach(object => {
-            const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
             const behavior = object.getBehavior(behaviorName);
             if (this.objects.includes(object) && this.behaviors.includes(behavior)) return;
             const behaviorScript = new this(object, behavior);
@@ -28,8 +28,8 @@ export class behaviorScript {
 
     static onActivate(runtimeScene, eventsFunctionContext) {
         const objects = eventsFunctionContext._objectArraysMap.Object;
+        const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
         objects.forEach(object => {
-            const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
             const behavior = object.getBehavior(behaviorName);
             const index = this.behaviors.indexOf(behavior);
             if (index === -1) return;
@@ -43,8 +43,8 @@ export class behaviorScript {
 
     static onDeActivate(runtimeScene, eventsFunctionContext) {
         const objects = eventsFunctionContext._objectArraysMap.Object;
+        const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
         objects.forEach(object => {
-            const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
             const behavior = object.getBehavior(behaviorName);
             const index = this.behaviors.indexOf(behavior);
             if (index === -1) return;
@@ -59,8 +59,8 @@ export class behaviorScript {
     static doStepPreEvents(runtimeScene, eventsFunctionContext) {
         const delta = gdjs.evtTools.runtimeScene.getElapsedTimeInSeconds(runtimeScene);
         const objects = eventsFunctionContext._objectArraysMap.Object;
+        const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
         objects.forEach(object => {
-            const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
             const behavior = object.getBehavior(behaviorName);
             const index = this.behaviors.indexOf(behavior);
             if (index === -1) return;
@@ -75,8 +75,8 @@ export class behaviorScript {
     static doStepPostEvents(runtimeScene, eventsFunctionContext) {
         const delta = gdjs.evtTools.runtimeScene.getElapsedTimeInSeconds(runtimeScene);
         const objects = eventsFunctionContext._objectArraysMap.Object;
+        const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
         objects.forEach(object => {
-            const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
             const behavior = object.getBehavior(behaviorName);
             const index = this.behaviors.indexOf(behavior);
             if (index === -1) return;
@@ -90,8 +90,8 @@ export class behaviorScript {
 
     static onDestroy(runtimeScene, eventsFunctionContext) {
         const objects = eventsFunctionContext._objectArraysMap.Object;
+        const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
         objects.forEach(object => {
-            const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
             const behavior = object.getBehavior(behaviorName);
             const index = this.behaviors.indexOf(behavior);
             if (index === -1) return;
@@ -104,14 +104,15 @@ export class behaviorScript {
             if (behaviorScript.onDestroy)
                 behaviorScript.onDestroy();
         });
+        const behaviors = objects.map(object => object.getBehavior(behaviorName));
     }
 
     static runCustomFunction(runtimeScene, eventsFunctionContext, functionName) {
         let value = null;
         const objects = eventsFunctionContext._objectArraysMap.Object;
+        const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
         objects.forEach(object => {
             if (value !== null) return;
-            const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
             const behavior = object.getBehavior(behaviorName);
             const index = this.behaviors.indexOf(behavior);
             if (index === -1) return;

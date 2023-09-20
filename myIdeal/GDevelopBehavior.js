@@ -5,8 +5,8 @@ export class GDevelopBehavior {
 
     static onCreated(runtimeScene, eventsFunctionContext) {
         const objects = eventsFunctionContext._objectArraysMap.Object;
+        const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
         objects.forEach(object => {
-            const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
             const behavior = object.getBehavior(behaviorName);
             if (this.objects.includes(object) && this.behaviors.includes(behavior)) return;
             const behaviorScript = new this(object, behavior);
@@ -22,8 +22,8 @@ export class GDevelopBehavior {
 
     static onActivate(runtimeScene, eventsFunctionContext) {
         const objects = eventsFunctionContext._objectArraysMap.Object;
+        const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
         objects.forEach(object => {
-            const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
             const behavior = object.getBehavior(behaviorName);
             const index = this.behaviors.indexOf(behavior);
             if (index === -1) return;
@@ -37,8 +37,8 @@ export class GDevelopBehavior {
 
     static onDeActivate(runtimeScene, eventsFunctionContext) {
         const objects = eventsFunctionContext._objectArraysMap.Object;
+        const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
         objects.forEach(object => {
-            const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
             const behavior = object.getBehavior(behaviorName);
             const index = this.behaviors.indexOf(behavior);
             if (index === -1) return;
@@ -53,8 +53,8 @@ export class GDevelopBehavior {
     static doStepPreEvents(runtimeScene, eventsFunctionContext) {
         const delta = gdjs.evtTools.runtimeScene.getElapsedTimeInSeconds(runtimeScene);
         const objects = eventsFunctionContext._objectArraysMap.Object;
+        const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
         objects.forEach(object => {
-            const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
             const behavior = object.getBehavior(behaviorName);
             const index = this.behaviors.indexOf(behavior);
             if (index === -1) return;
@@ -69,8 +69,8 @@ export class GDevelopBehavior {
     static doStepPostEvents(runtimeScene, eventsFunctionContext) {
         const delta = gdjs.evtTools.runtimeScene.getElapsedTimeInSeconds(runtimeScene);
         const objects = eventsFunctionContext._objectArraysMap.Object;
+        const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
         objects.forEach(object => {
-            const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
             const behavior = object.getBehavior(behaviorName);
             const index = this.behaviors.indexOf(behavior);
             if (index === -1) return;
@@ -84,8 +84,8 @@ export class GDevelopBehavior {
 
     static onDestroy(runtimeScene, eventsFunctionContext) {
         const objects = eventsFunctionContext._objectArraysMap.Object;
+        const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
         objects.forEach(object => {
-            const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
             const behavior = object.getBehavior(behaviorName);
             const index = this.behaviors.indexOf(behavior);
             if (index === -1) return;
@@ -103,9 +103,9 @@ export class GDevelopBehavior {
     static exec(runtimeScene, eventsFunctionContext, func) {
         let value = null;
         const objects = eventsFunctionContext._objectArraysMap.Object;
+        const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
         objects.forEach(object => {
             if (value !== null) return;
-            const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
             const behavior = object.getBehavior(behaviorName);
             const index = this.behaviors.indexOf(behavior);
             if (index === -1) return;
