@@ -3,10 +3,7 @@ import { GDevelopScene } from "./GDevelopScene.js";
 export class Game extends GDevelopScene {
     leaderboardId = "ef511a78-fe0a-4e09-ab21-1259d0801a32";
 
-    onSceneLoad(runtimeScene, eventsFunctionContext) {
-        const isSceneLoadedEvent = gdjs.evtTools.runtimeScene.sceneJustBegins(runtimeScene) || isFirstRun;
-        if (!isSceneLoadedEvent) return;
-
+    onSceneLoaded(runtimeScene, eventsFunctionContext) {
         window.runtimeScene = runtimeScene;
 
         runtimeScene.getVariables().add("State", (new gdjs.Variable()).fromJSObject("NotStarted"))
@@ -29,7 +26,7 @@ export class Game extends GDevelopScene {
         });
     }
 
-    onPostEvents(runtimeScene, eventsFunctionContext) {
+    onScenePostEvents(runtimeScene, eventsFunctionContext) {
         this.onClickDuringInstructions(runtimeScene);
         this.onMoving(runtimeScene);
         this.onGamePlaying(runtimeScene);
@@ -47,7 +44,7 @@ export class Game extends GDevelopScene {
         stateVariable.setValue("GamePlaying");
 
         runtimeScene._instances.items.TappyPlane.forEach(tappyPlane => {
-            tappyPlane.getBehavior("EllipseMovement").activate(false);
+            tappyPlane.getBehavior("EllipseMovementJS").activate(false);
             tappyPlane.getBehavior("PlatformerObject").activate(true);
         });
 
@@ -77,11 +74,11 @@ export class Game extends GDevelopScene {
         pillars.forEach(pillar => { pillar.clearForces(); });
 
         const stateVariable = runtimeScene.getVariables().get("State");
-        const wasGamePlayingTriggered = isGamePlayingTriggered;
-        isGamePlayingTriggered = stateVariable.getValue() == "GamePlaying";
-        if (!isGamePlayingTriggered) return;
+        const wasGamePlayingTriggered = this.isGamePlayingTriggered;
+        this.isGamePlayingTriggered = stateVariable.getValue() == "GamePlaying";
+        if (!this.isGamePlayingTriggered) return;
 
-        const isTriggeredOnce = !wasGamePlayingTriggered && isGamePlayingTriggered;
+        const isTriggeredOnce = !wasGamePlayingTriggered && this.isGamePlayingTriggered;
 
         if (isTriggeredOnce) {
             runtimeScene.getTimeManager().addTimer("pipe_spawn");
@@ -139,16 +136,16 @@ export class Game extends GDevelopScene {
 
         // Add a point to the player score once the player passes a the hole
         const tappyPlanes = runtimeScene.getObjects("TappyPlane");
-        const wasPlanePassingThroughHole = isPlanePassingThroughHole;
-        isPlanePassingThroughHole = false;
+        const wasPlanePassingThroughHole = this.isPlanePassingThroughHole;
+        this.isPlanePassingThroughHole = false;
         pillars.forEach(pillar => {
             tappyPlanes.forEach(tappyPlane => {
-                if (isPlanePassingThroughHole) return;
-                isPlanePassingThroughHole = pillar.getX() < tappyPlane.getCenterXInScene() && pillar.getX() > tappyPlane.getCenterXInScene() - 60;
+                if (this.isPlanePassingThroughHole) return;
+                this.isPlanePassingThroughHole = pillar.getX() < tappyPlane.getCenterXInScene() && pillar.getX() > tappyPlane.getCenterXInScene() - 60;
             });
         });
         const currentScores = runtimeScene.getObjects("CurrentScore");
-        if (!wasPlanePassingThroughHole && isPlanePassingThroughHole) {
+        if (!wasPlanePassingThroughHole && this.isPlanePassingThroughHole) {
             runtimeScene.getVariables().get("Score").add(1);
             currentScores.forEach(currentScore => {
                 currentScore.setString(runtimeScene.getVariables().get("Score").getAsString());
@@ -194,11 +191,11 @@ export class Game extends GDevelopScene {
     isPlayerLoggedIn = false;
     onGameOver(runtimeScene) {
         const stateVariable = runtimeScene.getVariables().get("State");
-        const wasGameOverTriggered = isGameOverTriggered;
-        isGameOverTriggered = stateVariable.getValue() == "GameOver";
-        if (!isGameOverTriggered) return;
+        const wasGameOverTriggered = this.isGameOverTriggered;
+        this.isGameOverTriggered = stateVariable.getValue() == "GameOver";
+        if (!this.isGameOverTriggered) return;
 
-        const isTriggeredOnce = !wasGameOverTriggered && isGameOverTriggered;
+        const isTriggeredOnce = !wasGameOverTriggered && this.isGameOverTriggered;
         const currentScores = runtimeScene.getObjects("CurrentScore");
         const highScoreChangeds = runtimeScene.getObjects("HighScoreChanged");
         const finalScores = runtimeScene.getObjects("FinalScore");
@@ -257,9 +254,9 @@ export class Game extends GDevelopScene {
             }
         }
 
-        const wasPlayerLoggedIn = isPlayerLoggedIn;
-        isPlayerLoggedIn = gdjs.playerAuthentication.isAuthenticated();
-        if (!wasPlayerLoggedIn && isPlayerLoggedIn) {
+        const wasPlayerLoggedIn = this.isPlayerLoggedIn;
+        this.isPlayerLoggedIn = gdjs.playerAuthentication.isAuthenticated();
+        if (!wasPlayerLoggedIn && this.isPlayerLoggedIn) {
             playerNameInputs.forEach(playerNameInput => {
                 playerNameInput.setString(gdjs.playerAuthentication.getUsername());
                 playerNameInput.setDisabled(true);
@@ -288,18 +285,18 @@ export class Game extends GDevelopScene {
         if (isSubmitClicked) {
             gdjs.playerAuthentication.removeAuthenticationBanner(runtimeScene);
             if (isPlayerLoggedIn) {
-                gdjs.evtTools.leaderboards.saveConnectedPlayerScore(runtimeScene, leaderboardId, score.getValue());
+                gdjs.evtTools.leaderboards.saveConnectedPlayerScore(runtimeScene, this.leaderboardId, score.getValue());
             }
             else {
                 runtimeScene.getGame().getVariables().get("PlayerName").setString(runtimeScene.getObjects("PlayerNameInput")[0].getString());
-                gdjs.evtTools.leaderboards.savePlayerScore(runtimeScene, leaderboardId, score.getValue(), runtimeScene.getObjects("PlayerNameInput")[0].getString());
+                gdjs.evtTools.leaderboards.savePlayerScore(runtimeScene, this.leaderboardId, score.getValue(), runtimeScene.getObjects("PlayerNameInput")[0].getString());
             }
-            gdjs.evtTools.leaderboards.displayLeaderboard(runtimeScene, leaderboardId, true);
+            gdjs.evtTools.leaderboards.displayLeaderboard(runtimeScene, this.leaderboardId, true);
             return;
         }
 
         const hasClosedLeaderboard = gdjs.evtTools.leaderboards.hasPlayerJustClosedLeaderboardView();
-        const hasScoreSavedSucceeeded = gdjs.evtTools.leaderboards.hasBeenSaved(leaderboardId);
+        const hasScoreSavedSucceeeded = gdjs.evtTools.leaderboards.hasBeenSaved(this.leaderboardId);
         if (hasClosedLeaderboard && hasScoreSavedSucceeeded) {
             gdjs.evtTools.runtimeScene.replaceScene(runtimeScene, "Game");
         }

@@ -22,7 +22,7 @@ urls.forEach(url => {
     .catch(error => {
         caughtErrorCount++;
         if (caughtErrorCount === urls.length) {
-            console.warn(`Unable to load external code for behavior ${sceneName} from urls ${urls} with error ${error}`);
+            console.debug(`[OnSceneLoaded] Skipping external code for scene ${sceneName} from urls ${urls} with error ${error}`);
         }
     });
 });

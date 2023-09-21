@@ -2,9 +2,6 @@ import { GDevelopScene } from "./GDevelopScene.js";
 
 export class Menu extends GDevelopScene {
     onSceneLoaded(runtimeScene, eventsFunctionContext) {
-        const isSceneLoadedEvent = gdjs.evtTools.runtimeScene.sceneJustBegins(runtimeScene) || isFirstRun;
-        if (!isSceneLoadedEvent) return;
-
         // DEBUG: Access runtimeScene from browser console
         window.runtimeScene = runtimeScene;
 

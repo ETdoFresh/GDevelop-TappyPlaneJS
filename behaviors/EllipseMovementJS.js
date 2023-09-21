@@ -18,6 +18,10 @@ export class EllipseMovementJS extends GDevelopBehavior {
     set OldX(value) { this._behaviorData.OldX = value; }
     get OldY() { return this._behaviorData.OldY; }
     set OldY(value) { this._behaviorData.OldY = value; }
+    get RadiusX() { return this._behaviorData.RadiusX; }
+    set RadiusX(value) { this._behaviorData.RadiusX = value; }
+    get RadiusY() { return this._behaviorData.RadiusY; }
+    set RadiusY(value) { this._behaviorData.RadiusY = value; }
 
     onCreated() {
         this.OldX = this.ObjectX;

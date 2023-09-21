@@ -4,7 +4,7 @@ export class GDevelopScene {
     static onSceneLoaded(runtimeScene, eventsFunctionContext) {
         const sceneName = runtimeScene.getName();
         if (!this.scenes[sceneName]) {
-            this.scenes[sceneName] = new GDevelopScene();
+            this.scenes[sceneName] = new this();
         }
         if (this.scenes[sceneName].onSceneLoaded)
             this.scenes[sceneName].onSceneLoaded(runtimeScene, eventsFunctionContext);
