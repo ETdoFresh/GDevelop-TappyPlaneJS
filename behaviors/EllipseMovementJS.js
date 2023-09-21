@@ -1,6 +1,6 @@
 import { GDevelopBehavior } from './GDevelopBehavior.js';
 
-export class EllipseMovement extends GDevelopBehavior {
+export class EllipseMovementJS extends GDevelopBehavior {
 
     get CenterX() { return this._behaviorData.CenterX; }
     set CenterX(value) { this._behaviorData.CenterX = value; }

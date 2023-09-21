@@ -1,27 +1,26 @@
-const behaviorName = eventsFunctionContext._behaviorNamesMap.Behavior;
+const behaviorName = eventsFunctionContext.getArgument("BehaviorName");
 
-// If External Code is already loaded
 gdjs.externalCode = gdjs.externalCode || {};
 if (gdjs.externalCode[behaviorName]) {
-    gdjs.externalCode[behaviorName].onCreated(runtimeScene, eventsFunctionContext);
-    return;
+    return eventsFunctionContext.returnValue = true;
 }
 
-// Otherwise, Load External Code
-const behaviorType = runtimeScene.getInitialSharedDataForBehavior(behaviorName).type;
-const extensionName = behaviorType.split("::")[0];
-const sharedDataKey = `_${extensionName}_${behaviorName}SharedData`;
-const urlsCombined = runtimeScene[sharedDataKey].ExternalUrls;
+this.runOnce = this.runOnce || {};
+if (this.runOnce[behaviorName]) {
+    return eventsFunctionContext.returnValue = false;
+}
+this.runOnce[behaviorName] = true;
+
+const urlsCombined = gdjs.evtsExt__ExternalCode__getUrls.func();
 const urls = urlsCombined.split(",").map(url => `${url}/${behaviorName}.js`);
 
 let caughtErrorCount = 0;
-
-// Load external code
 urls.forEach(url => {
     import(url).then((module) => { 
         if (gdjs.externalCode[behaviorName]) return;
         gdjs.externalCode[behaviorName] = module[behaviorName];
-        gdjs.externalCode[behaviorName].onCreated(runtimeScene, eventsFunctionContext);
+        eventsFunctionContext.returnValue = true;
+
     })
     .catch(error => {
         caughtErrorCount++;
